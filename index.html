@@ -1,1 +1,586 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+
+<title>Smart Grocery List App</title>
+
+<!-- Libraries -->
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+
+
+/* Home Page */
+#homePage{
+  text-align:center;
+  color:white;
+  margin-top:15%;
+  animation:fadeIn 1s ease;
+}
+#homePage h1{font-size:40px;margin-bottom:20px;}
+#homePage p{font-size:18px;opacity:0.9;margin-bottom:30px; color: #333;}
+/* #homePage button{
+  background:white;
+  color:#764ba2;
+  padding:12px 30px;
+  border:none;
+  font-size:18px;
+  font-weight:600;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.3s;
+} */
+
+ .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+/* #homePage button:hover{transform:scale(1.05);background:#f1f1f1;} */
+
+/* Main App */
+#mainApp{display:none;width:100%;padding:20px;}
+
+/* Header */
+header{
+  width:100%;
+  max-width:600px;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(10px);
+  border-radius:15px;
+  text-align:center;
+  color:white;
+  font-size:26px;
+  font-weight:700;
+  padding:20px;
+  margin-bottom:25px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
+  animation:slideDown 1s ease-in-out;
+}
+@keyframes slideDown{
+  from{transform:translateY(-50px);opacity:0;}
+  to{transform:translateY(0);opacity:1;}
+}
+
+/* Form Section */
+.form-section{
+  background:#fff;
+  width:100%;
+  max-width:600px;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.15);
+  margin:auto;
+  animation:fadeIn 0.8s ease;
+}
+.form-title{text-align:center;font-weight:700;color:#4e54c8;margin-bottom:20px;}
+.form-group{margin-bottom:18px;}
+.form-label{font-weight:600;color:#333;margin-bottom:6px;display:block;}
+.form-input{
+  width:100%;
+  padding:10px;
+  border:2px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
+  outline:none;
+  transition:0.3s;
+}
+.form-input:focus{border-color:#764ba2;box-shadow:0 0 5px #764ba2;}
+.form-actions{text-align:center;margin-top:10px;}
+.btn{
+  border:none;
+  border-radius:10px;
+  padding:10px 18px;
+  margin:5px;
+  cursor:pointer;
+  font-size:15px;
+  transition:0.3s;
+  color:white;
+}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);}
+.btn-secondary{background:#17a2b8;}
+.btn-cancel{background:#e74c3c;}
+.btn:hover{transform:scale(1.05);}
+
+/* List Section */
+.list-section{
+  width:100%;
+  max-width:600px;
+  background:#fff;
+  border-radius:20px;
+  margin-top:25px;
+  padding:20px;
+  /* padding-left:100px; */
+  box-shadow:0 8px 25px rgba(0,0,0,0.1);
+}
+.list-item{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 10px;
+  border-bottom:1px solid #eee;
+  align-items:center;
+}
+.item-info{
+  flex:1;
+  display:flex;
+  justify-content:space-between;
+  font-weight:500;
+}
+.item-actions button{
+  background:transparent;
+  border:none;
+  color:#764ba2;
+  font-size:18px;
+  cursor:pointer;
+  transition:0.2s;
+}
+.item-actions button:hover{transform:scale(1.3);}
+.loader{
+  display:none;
+  text-align:center;
+  color:#444;
+  font-weight:600;
+  margin-top:10px;
+}
+
+
+ 
+        /* home */
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .login-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        #homePage .login-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        
+        #homePage  .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            width: 100%;
+        }
+        
+        #homePage .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+/* Popup */
+.popup{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#764ba2;
+  color:#fff;
+  padding:15px 25px;
+  border-radius:12px;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+  opacity:0;
+  transform:translateY(30px);
+  animation:popupIn 0.4s forwards;
+  z-index:999;
+}
+@keyframes popupIn{to{opacity:1;transform:translateY(0);}}
+@keyframes popupOut{to{opacity:0;transform:translateY(40px);}}
+
+/* Responsive */
+@media(max-width:768px){
+  header{font-size:22px;padding:15px;}
+  .form-section,.list-section{padding:15px;border-radius:15px;}
+  .btn{font-size:14px;padding:8px 14px;}
+}
+@media(max-width:768px){
+  header{font-size:22px;padding:15px;}
+  #homePage{padding:15px;border-radius:15px;}
+  .btn{font-size:14px;padding:8px 14px;}
+  .crd{
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+  }
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(0.95);}
+  to{opacity:1;transform:scale(1);}
+}
+</style>
+</head>
+<body>
+
+<!-- Home Page -->
+
+
+<div id="homePage">
+  <!-- <div class="crd" style="display: flex;">
+    <div class="logo">🛒</div>
+    <h1 style="font-size: 15px;">Smart Grocery List App</h1>
+  </div>  
+  <p>Manage your items easily and export them as a 4-column PDF!</p>
+  <button class="btn"  onclick="startApp()">🚀 Get Started</button> -->
+
+    <div class="login-card">
+        <div class="logo">🛒</div>
+        <h1 class="login-title">Smart Grocery List App</h1>
+        <p>Start building your grocery list</p>
+        
+        <button class="btn"  onclick="startApp()">📝 Get Started</button>
+    </div>
+</div>
+
+<!-- Main App -->
+<div id="mainApp">
+  <!-- <header>🛒 My Glossary List App
+            <div id="currentDateTime"style="margin-top: 15px; color: black; font-weight: 600; text-align: center; font-size: 16px;"></div>
+
+  </header> -->
+  <div class="form-section" style="width:100%;
+  max-width:600px;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(10px);
+  border-radius:15px;
+  text-align:center;
+  color:white;
+  font-size:20px;
+  font-weight:500;
+  padding:20px;
+  margin-bottom:25px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
+  animation:slideDown 1s ease-in-out;">
+   <div style="display: flex;">
+        <div class="logo">🛒</div>
+        <h1>My Glossary List App</h1>
+   </div>    
+    
+    <div id="currentDateTime"style="margin-top: 15px; color: black; font-weight: 600; text-align: center; font-size: 16px;"></div>
+  </div>
+
+  <div class="form-section">
+    <h2 class="form-title" id="formTitle">➕ Add New Item</h2>
+    <form id="glossaryForm">
+      <div class="form-group">
+        <label class="form-label">🏷️ Item Name</label>
+        <input type="text" id="itemNameInput" class="form-input" placeholder="Enter item name (e.g. Sugar)" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">📊 Quantity</label>
+        <input type="number" id="quantityInput" class="form-input" placeholder="Enter quantity (e.g. 2)" min="0.1" step="0.1" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">📏 Unit</label>
+        <select id="unitInput" class="form-input" required>
+        <option value="">Select unit</option>
+        <option value="किलो">Kilogram (किलोग्राम)</option>
+        <option value="ग्राम">Gram (ग्राम)</option>
+        <option value="लीटर">Liter (लीटर)</option>
+        <option value="मिलीलीटर">Milliliter (मिलीलीटर)</option>
+        <option value="पैकेट">Pack (पैकेट)</option>
+        <option value="बोतल">Bottle (बोतल)</option>
+        <option value="डिब्बा">Can (डिब्बा)</option>
+        <option value="पीस">Piece (पीस)</option>
+        <option value="दर्जन">Dozen (दर्जन)</option>
+        <option value="बंडल">Bundle (बंडल)</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" id="submitBtn">➕ Add Item</button>
+        <button type="button" class="btn btn-secondary" onclick="downloadPDF()">📄 Download PDF</button>
+        <button type="button" class="btn btn-cancel" id="cancelBtn" style="display:none;" onclick="cancelEdit()">❌ Cancel</button>
+      </div>
+    </form>
+    <div class="loader" id="loader">⏳ Loading PDF...</div>
+  </div>
+
+  <div class="list-section form-section">
+    <h3 style="text-align:center;color:#4e54c8;">📋 Item List</h3>
+    <div id="itemsContainer"></div>
+  </div>
+</div>
+
+<script>
+let glossaryEntries = [];
+let editIndex = -1;
+
+function startApp(){
+  document.getElementById("homePage").style.display="none";
+  document.getElementById("mainApp").style.display="block";
+  showPopup("🎉 Welcome! Start adding your items.");
+}
+
+function showPopup(msg,color="linear-gradient(180deg, hsla(138, 100%, 47%, 0.23), hsla(260, 100%, 0%, 1.00))"){
+  const popup=document.createElement("div");
+  popup.className="popup";
+  popup.style.background=color;
+  popup.textContent=msg;
+  document.body.appendChild(popup);
+  setTimeout(()=>{
+    popup.style.animation="popupOut 0.5s forwards";
+    setTimeout(()=>popup.remove(),500);
+  },2000);
+}
+
+document.getElementById("glossaryForm").addEventListener("submit",(e)=>{
+  e.preventDefault();
+  const name=itemNameInput.value.trim();
+  const qty=quantityInput.value.trim();
+  const unit=unitInput.value;
+  if(!name||!qty||!unit)return showPopup("⚠️ Fill all fields","#e67e22");
+  const item={term:name,quantity:qty,unit:unit};
+  if(editIndex>=0){
+    glossaryEntries[editIndex]=item;
+    editIndex=-1;
+    formTitle.textContent="➕ Add New Item";
+    submitBtn.textContent="➕ Add Item";
+    cancelBtn.style.display="none";
+    showPopup("✅ Item updated successfully!","#17a2b8");
+  }else{
+    glossaryEntries.push(item);
+    showPopup("✨ Item added!","#764ba2");
+  }
+  glossaryForm.reset();
+  renderItems();
+});
+
+function renderItems(){
+  const c=document.getElementById("itemsContainer");
+  if(!glossaryEntries.length){
+    c.innerHTML=`<p style="text-align:center;color:#777;">No items added yet.</p>`;
+    return;
+  }
+  c.innerHTML=glossaryEntries.map((e,i)=>`
+    <div class="list-item">
+      <div class="item-info">
+        <span>${i+1}. ${e.term}</span>
+        <span>${e.quantity} ${e.unit}</span>
+      </div>
+      <div class="item-actions">
+        <button onclick="editItem(${i})">✏️</button>
+        <button onclick="deleteItem(${i})">🗑️</button>
+      </div>
+    </div>`).join("");
+}
+
+function editItem(i){
+  const e=glossaryEntries[i];
+  itemNameInput.value=e.term;
+  quantityInput.value=e.quantity;
+  unitInput.value=e.unit;
+  editIndex=i;
+  formTitle.textContent="✏️ Edit Item";
+  submitBtn.textContent="💾 Update Item";
+  cancelBtn.style.display="inline-block";
+}
+function cancelEdit(){
+  editIndex=-1;
+  glossaryForm.reset();
+  formTitle.textContent="➕ Add New Item";
+  submitBtn.textContent="➕ Add Item";
+  cancelBtn.style.display="none";
+  showPopup("❌ Edit cancelled","#e74c3c");
+}
+function deleteItem(i){
+  glossaryEntries.splice(i,1);
+  renderItems();
+  showPopup("🗑️ Item deleted","#e74c3c");
+}
+
+/* ✅ PDF GRID LAYOUT (2 Columns) */
+function downloadPDF() {
+  if (!glossaryEntries.length)
+    return showPopup("⚠️ Add some items first", "#e67e22");
+
+  document.getElementById("loader").style.display = "block";
+
+  setTimeout(() => {
+    const pdfDiv = document.createElement("div");
+
+    // 🕒 Current date and time
+    const now = new Date();
+    const formattedDateTime = now.toLocaleString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+
+    // 🧾 Header with date/time
+    const headerHTML = `
+      <div style="text-align:center;margin-bottom:20px;">
+        <h2 style="margin:0;color:#333;">🛒 Kirana List</h2>
+        <p style="font-size:14px;color:#666;">Generated on: ${formattedDateTime}</p>
+      </div>
+    `;
+
+    // 🧩 Split entries equally into 2 columns
+    const half = Math.ceil(glossaryEntries.length / 2);
+    const leftItems = glossaryEntries.slice(0, half);
+    const rightItems = glossaryEntries.slice(half);
+
+    // 💡 Create HTML for each column
+    const columnHTML = (arr, startIndex) => arr
+      .map(
+        (e, i) => `
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          background:#f8f9fa;
+          border-radius:8px;
+          padding:8px 12px;
+          box-shadow:0 2px 6px rgba(0,0,0,0.1);
+          border-left:3px solid #28a745;
+        ">
+          <div style="font-weight:600;font-size:15px;color:#333;">
+            ${startIndex + i + 1}. ${e.term}
+          </div>
+          <div style="font-size:13px;font-weight:500;color:#fff;
+                      background:#667eea;padding:6px 10px;
+                      border-radius:10px;">
+            ${e.quantity} ${e.unit}
+          </div>
+        </div>`
+      )
+      .join("");
+
+    // 🧱 Combine into two-column grid
+    const gridHTML = `
+      <div style="
+        display:grid;
+        grid-template-columns:1fr 2px 1fr;
+        column-gap:20px;
+        align-items:start;
+        font-family:'Poppins',sans-serif;
+      ">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${columnHTML(leftItems, 0)}
+        </div>
+
+        <div style="background:#ccc;width:2px;height:100%;"></div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${columnHTML(rightItems, half)}
+        </div>
+      </div>
+    `;
+
+    // 🧾 Combine all sections
+    pdfDiv.innerHTML = headerHTML + gridHTML;
+    pdfDiv.style.cssText = `
+      width:900px;
+      background:white;
+      padding:30px;
+      color:black;
+      position:absolute;
+      top:-9999px;
+    `;
+
+    document.body.appendChild(pdfDiv);
+
+    // 📄 Generate PDF
+    html2canvas(pdfDiv, { scale: 2 }).then(canvas => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF("p", "mm", "a4");
+      const img = canvas.toDataURL("image/png");
+      const width = 210;
+      const height = (canvas.height * width) / canvas.width;
+      doc.addImage(img, "PNG", 0, 0, width, height);
+      doc.save(`Kirana-List-${now.toLocaleDateString().replace(/\//g, "-")}.pdf`);
+
+      pdfDiv.remove();
+      document.getElementById("loader").style.display = "none";
+      showPopup("📄 PDF downloaded successfully!", "#2ecc71");
+    });
+  }, 300);
+}
+
+
+
+
+// date and time display
+
+function updateDateTime() {
+    const now = new Date();
+
+    // Format date and time
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+
+    const formatted = now.toLocaleString('en-IN', options);
+    document.getElementById('currentDateTime').textContent = `📅 ${formatted}`;
+}
+
+// Update immediately and then every second
+updateDateTime();
+setInterval(updateDateTime, 1000);
+</script>
+</body>
+</html>
