@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -369,7 +370,11 @@ function startApp(){
   showPopup("🎉 Welcome! Start adding your items.");
 }
 
+<<<<<<< HEAD
 function showPopup(msg,color="linear-gradient(1deg, hsla(195, 25%, 11%, 1.00), hsla(214, 100%, 36%, 0.23))"){
+=======
+function showPopup(msg,color="linear-gradient(180deg, hsla(138, 100%, 47%, 0.23), hsla(260, 100%, 0%, 1.00))"){
+>>>>>>> 6006a9c17dc8e12248cdbc4a038b5fc045af9ad5
   const popup=document.createElement("div");
   popup.className="popup";
   popup.style.background=color;
@@ -446,62 +451,118 @@ function deleteItem(i){
   showPopup("🗑️ Item deleted","#e74c3c");
 }
 
-/* ✅ PDF GRID LAYOUT (4 Columns) */
-function downloadPDF(){
-  if(!glossaryEntries.length)
-    return showPopup("⚠️ Add some items first","#e67e22");
+/* ✅ PDF GRID LAYOUT (2 Columns) */
+function downloadPDF() {
+  if (!glossaryEntries.length)
+    return showPopup("⚠️ Add some items first", "#e67e22");
 
-  document.getElementById("loader").style.display="block";
-  setTimeout(()=>{
-    const pdfDiv=document.createElement("div");
-    
+  document.getElementById("loader").style.display = "block";
+
+  setTimeout(() => {
+    const pdfDiv = document.createElement("div");
+
+    // 🕒 Current date and time
+    const now = new Date();
+    const formattedDateTime = now.toLocaleString("en-IN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+
+    // 🧾 Header with date/time
+    const headerHTML = `
+      <div style="text-align:center;margin-bottom:20px;">
+        <h2 style="margin:0;color:#333;">🛒 Kirana List</h2>
+        <p style="font-size:14px;color:#666;">Generated on: ${formattedDateTime}</p>
+      </div>
+    `;
+
+    // 🧩 Split entries equally into 2 columns
+    const half = Math.ceil(glossaryEntries.length / 2);
+    const leftItems = glossaryEntries.slice(0, half);
+    const rightItems = glossaryEntries.slice(half);
+
+    // 💡 Create HTML for each column
+    const columnHTML = (arr, startIndex) => arr
+      .map(
+        (e, i) => `
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          background:#f8f9fa;
+          border-radius:8px;
+          padding:8px 12px;
+          box-shadow:0 2px 6px rgba(0,0,0,0.1);
+          border-left:3px solid #28a745;
+        ">
+          <div style="font-weight:600;font-size:15px;color:#333;">
+            ${startIndex + i + 1}. ${e.term}
+          </div>
+          <div style="font-size:13px;font-weight:500;color:#fff;
+                      background:#667eea;padding:6px 10px;
+                      border-radius:10px;">
+            ${e.quantity} ${e.unit}
+          </div>
+        </div>`
+      )
+      .join("");
+
+    // 🧱 Combine into two-column grid
+    const gridHTML = `
+      <div style="
+        display:grid;
+        grid-template-columns:1fr 2px 1fr;
+        column-gap:20px;
+        align-items:start;
+        font-family:'Poppins',sans-serif;
+      ">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${columnHTML(leftItems, 0)}
+        </div>
+
+        <div style="background:#ccc;width:2px;height:100%;"></div>
+
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${columnHTML(rightItems, half)}
+        </div>
+      </div>
+    `;
+
+    // 🧾 Combine all sections
+    pdfDiv.innerHTML = headerHTML + gridHTML;
     pdfDiv.style.cssText = `
       width:900px;
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:20px;
       background:white;
       padding:30px;
       color:black;
       position:absolute;
       top:-9999px;
     `;
-    pdfDiv.innerHTML = glossaryEntries
-      .map(
-        (e, i) => `
-                <div>
-                    <div style="display:flex;padding:10px;line-height:1.4;box-shadow:0 2px 6px rgba(0,0,0,0.1);background: #f8f9fa; border-radius: 8px; border-left: 3px solid #28a745;">
-                        <div style="flex:1 font-weight: 800; font-size: 16px; color: #333;"><strong>${i + 1}. ${e.term}  </strong></div> 
-                        <div style="text-align:; min-width: 10px;  padding-left: 40px;">
-                            <span style="background: #667eea; color: white; padding: 7px 8px; border-radius: 12px; font-size: 13px; font-weight: 500;">${e.quantity} ${e.unit}</span>
-                        </div>
-                    </div>
-                    
-                
-                </div>`
-                
-               
-      )
-      .join("");
-                    
-      
 
     document.body.appendChild(pdfDiv);
 
-    html2canvas(pdfDiv,{scale:2}).then(canvas=>{
-      const {jsPDF}=window.jspdf;
-      const doc=new jsPDF("p","mm","a4");
-      const img=canvas.toDataURL("image/png");
-      const width=210;
-      const height=(canvas.height*width)/canvas.width;
-      doc.addImage(img,"PNG",0,0,width,height);
-      doc.save(`Kirana-List-${new Date().toLocaleDateString().replace(/\//g, '-')}.pdf`);
+    // 📄 Generate PDF
+    html2canvas(pdfDiv, { scale: 2 }).then(canvas => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF("p", "mm", "a4");
+      const img = canvas.toDataURL("image/png");
+      const width = 210;
+      const height = (canvas.height * width) / canvas.width;
+      doc.addImage(img, "PNG", 0, 0, width, height);
+      doc.save(`Kirana-List-${now.toLocaleDateString().replace(/\//g, "-")}.pdf`);
+
       pdfDiv.remove();
-      document.getElementById("loader").style.display="none";
-      showPopup("📄 PDF downloaded!","#2ecc71");
+      document.getElementById("loader").style.display = "none";
+      showPopup("📄 PDF downloaded successfully!", "#2ecc71");
     });
-  },300);
+  }, 300);
 }
+
 
 
 
