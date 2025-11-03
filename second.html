@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+  <title>Smart Grocery List App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body { background:linear-gradient(135deg,#667eea,#764ba2); }
+    .form-label{font-weight:600;color:#333;margin-bottom:6px;display:block;}
+    .suggestions { position: absolute; background: #fff; border: 1px solid #e5e7eb; width: 100%; z-index: 50; border-radius: 0.5rem; max-height: 180px; overflow-y: auto; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+    .suggestions div { padding: 8px 10px; cursor: pointer; }
+    .suggestions div:hover { background: #f3f4f6; }
+    .swal2-toast { width: 260px !important; font-size: 0.88rem !important; }
+    .circle-track{stroke:#e6e7ea}
+    .circle-progress{transition:stroke-dashoffset 600ms cubic-bezier(.22,.9,.37,1), stroke 300ms linear; transform:rotate(-90deg); transform-origin:50% 50%}
+    .pulse{animation:pulse 1.2s ease-in-out infinite}
+
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+  <!-- Loader -->
+  <!-- <div id="loader" class="fixed inset-0 flex flex-col items-center justify-center gap-3 bg-white z-50">
+    <svg viewBox="0 0 120 120" class="w-32 h-32" aria-hidden="true">
+      <defs>
+        <linearGradient id="g" x1="0" x2="1">
+          <stop offset="0%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#06b6d4"/>
+        </linearGradient>
+      </defs>
+      <circle cx="60" cy="60" r="48" stroke-width="8" fill="none" class="circle-track"/>
+      <circle id="progress" cx="60" cy="60" r="48" stroke-width="8" stroke-linecap="round" stroke="url(#g)" fill="none" class="circle-progress" stroke-dasharray="301.59" stroke-dashoffset="301.59" />
+    </svg>
+    <div id="pct" class="text-xl font-semibold text-slate-700">0%</div>
+    <div style=" align-items: center; justify-content: center; text-align: center;">
+        <h2 style="color:#fff; 
+                  text-shadow:0 0 6px rgba(255,255,255,0.8),0 6px 18px rgba(99,102,241,0.25),0 0 30px rgba(99,102,241,0.12);
+                  filter:saturate(1.1);
+                  font-weight:700;
+                  background:#0f172a;
+                  font-size: 22px;
+                  padding:10px 20px;
+                  border-radius:8px;">Welcome to Grocery List App </h2></div>
+    </div> -->
+  
+
+  <!-- date and time  -->
+   <div id="currentDateTime"style="margin-top: 0px; padding: 10px; color: black; font-weight: 600; text-align: center; font-size: 16px; background:#F8F8FF;" class="shadow-2xl rounded-2xl "></div><br>
+
+  <!-- content -->
+  <div class="bg-white shadow-2xl rounded-2xl w-full max-w-lg p-6 sm:p-8 transition-all duration-300 relative" style="animation:slideDown 1s ease-in-out;">
+   
+
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <h1 id="app-title" class="text-3xl sm:text-4xl font-extrabold text-gray-800 text-center">🛒 Grocery List</h1>
+      <select id="language-toggle" class="border p-2 rounded-lg text-sm focus:ring focus:ring-green-300">
+        <option value="en">English</option>
+        <option value="mr">मराठी</option>
+      </select>
+    </div>
+
+    <form id="grocery-form" class="flex flex-col sm:flex-row flex-wrap gap-2 mb-4 relative" autocomplete="off">
+      <div class="w-full relative">
+        <label class="form-label">🏷️ Item Name</label>
+        <input id="item-name" name="item-name" type="text" placeholder="Enter item name (e.g. Sugar) " class="flex-1 border p-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400" required />
+        <div id="suggestions" class="suggestions hidden" role="listbox" aria-label="Suggestions"></div>
+      </div>
+      <div class="w-full relative">
+        <label class="form-label">📊 Quantity</label>
+        <input id="item-qty" name="item-qty" type="number" min="1" placeholder="Enter quantity (e.g. 2)" class="w-full  border p-2 rounded-lg focus:ring-2 focus:ring-green-400" required />
+      </div>
+      <div class="w-full relative">
+         <label class="form-label">📏 Unit</label>
+         <select id="item-unit" class=" w-full border p-2 rounded-lg focus:ring-2 focus:ring-green-400" required></select>
+      </div>
+
+      <div style="margin-top: 10px;">
+      <!-- <button type="submit" id="add-btn" class="bg-green-600 w-full sm:w-auto text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300">Add</button> -->
+      <button type="submit" id="add-btn" class=" btn btn-primary text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-1 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"> ➕ Add Item</button>
+      </div>
+    </form>
+
+    <div class="flex flex-wrap justify-between mb-4 gap-2">
+      <button id="clear-purchased" class="text-sm text-red-600 hover:underline">Clear Purchased</button>
+      <div class="flex gap-2">
+        <button id="export-btn" class="text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Export</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden" />
+        <button id="import-btn" class="text-sm bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600">Import</button>
+      </div>
+      <select id="filter" class="border p-1 rounded-lg text-sm">
+        <option value="all">All</option>
+        <option value="active">Active</option>
+        <option value="purchased">Purchased</option>
+      </select>
+    </div>
+
+    <ul id="grocery-list" class="space-y-2 bg-orange-50 p-3 rounded-lg shadow-inner"></ul>
+  </div>
+   <!-- loder script -->
+   <script>
+    const circle = document.getElementById('progress');
+    const pct = document.getElementById('pct');
+    const loader = document.getElementById('loader');
+    const mainContent = document.getElementById('mainContent');
+
+    const R = 48; const C = 2 * Math.PI * R;
+    circle.style.strokeDasharray = C; circle.style.strokeDashoffset = C;
+
+    let progress = 0; let raf = null; let running = false;
+
+    function setProgress(v){
+      progress = Math.max(0, Math.min(100, v));
+      circle.style.strokeDashoffset = C * (1 - progress/100);
+      pct.textContent = Math.round(progress) + '%';
+      if(progress >= 100){
+        cancelAnimationFrame(raf);
+        running=false;
+        pct.textContent = '100%';
+        setTimeout(()=>{
+          loader.classList.add('opacity-0');
+          loader.style.transition = 'opacity 0.6s ease';
+          setTimeout(()=>{
+            loader.style.display='none';
+            mainContent.style.display='flex';
+          },600);
+        },500);
+      }
+    }
+
+    function simulate(){
+      if(!running) return;
+      const inc = 0.3 + (1 - progress/100) * 1.0 + Math.random()*0.4;
+      setProgress(progress + inc);
+      if(progress < 100) raf = requestAnimationFrame(simulate);
+    }
+
+    running = true; setProgress(4 + Math.random()*6); simulate();
+  </script>
+
+  <script>
+    const units = [
+  { key: '', en: 'Select Unit', mr: 'Select Unit' },
+  { key: 'kilogram', en: 'Kilogram (kg)', mr: 'किलो (किलोग्रॅम)' },
+  { key: 'half_kilogram', en: 'Half Kilogram (½ kg)', mr: 'अर्धा किलो (अर्धा किलोग्रॅम)' },
+  { key: 'gram', en: 'Gram (g)', mr: 'ग्रॅम' },
+  { key: 'liter', en: 'Litre (L)', mr: 'लिटर' },
+  { key: 'half_liter', en: 'Half Litre (½ L)', mr: 'अर्धा लिटर' },
+  { key: 'milliliter', en: 'Millilitre (ml)', mr: 'मिलीलीटर' },
+  { key: 'piece', en: 'Piece (pc)', mr: 'नग' },
+  { key: 'dozen', en: 'Dozen (12 pcs)', mr: 'डझन (१२ नग)' },
+  { key: 'packet', en: 'Packet (pkt)', mr: 'पॅकेट' },
+  { key: 'box', en: 'Box', mr: 'डबा' },
+  { key: 'bottle', en: 'Bottle', mr: 'बाटली' },
+  { key: 'tin', en: 'Tin', mr: 'टिन' },
+  { key: 'sack', en: 'Sack / Bag', mr: 'गोणी / पिशवी' },
+  { key: 'bunch', en: 'Bunch', mr: 'घड' },
+  { key: 'bundle', en: 'Bundle', mr: 'मुठ / पुडा' },
+  { key: 'cup', en: 'Cup', mr: 'कप' },
+  { key: 'teaspoon', en: 'Teaspoon (tsp)', mr: 'चहाचा चमचा' },
+  { key: 'tablespoon', en: 'Tablespoon (tbsp)', mr: 'जेवणाचा चमचा' },
+  { key: 'meter', en: 'Meter (m)', mr: 'मीटर' },
+  { key: 'centimeter', en: 'Centimeter (cm)', mr: 'सेंटीमीटर' },
+  { key: 'inch', en: 'Inch (in)', mr: 'इंच' },
+  { key: 'square_meter', en: 'Square Meter (m²)', mr: 'चौरस मीटर' },
+  { key: 'square_feet', en: 'Square Feet (ft²)', mr: 'चौरस फूट' },
+  { key: 'set', en: 'Set', mr: 'सेट' },
+  { key: 'pair', en: 'Pair', mr: 'जोड / जोडी' },
+  { key: 'roll', en: 'Roll', mr: 'रोल' },
+  { key: 'sheet', en: 'Sheet', mr: 'शीट / पत्रा' },
+  { key: 'carton', en: 'Carton', mr: 'कार्टन' },
+  { key: 'bag', en: 'Bag', mr: 'पिशवी' }
+];
+
+
+
+    const translations = {
+      en: { title: '🛒 Grocery List', add: 'Add', clear: 'Clear Purchased', all: 'All', active: 'Active', purchased: 'Purchased', noItems: 'No items added yet', added: 'added successfully', imported: 'Items imported', cleared: 'Purchased items cleared', removed: 'Item removed' },
+      mr: { title: '🛒 किराणा यादी', add: 'जोडा', clear: 'खरेदी झालेले हटवा', all: 'सर्व', active: 'न खरेदी केलेले', purchased: 'खरेदी झालेले', noItems: 'अजून कोणतीही वस्तू नाही', added: 'यशस्वीरित्या जोडले', imported: 'वस्तू आयात झाले', cleared: 'खरेदी केलेले हटवले', removed: 'वस्तू हटवली' }
+    };
+
+    const indianItems = ['Rice','Wheat','Sugar','Salt','Oil','Turmeric','Chili Powder','Cumin','Dal','Toor Dal','Moong Dal','Masoor Dal','Besan','Poha','Tea','Coffee','Milk','Butter','Curd','Cheese','Jaggery','Atta','Maida','Onion','Potato','Tomato','Garlic','Ginger','Coriander','Spinach','Apple','Banana','Mango','Soap','Toothpaste','Detergent','Shampoo'];
+
+    const form = document.getElementById('grocery-form');
+    const listEl = document.getElementById('grocery-list');
+    const itemNameInput = document.getElementById('item-name');
+    const suggestionsBox = document.getElementById('suggestions');
+    const importBtn = document.getElementById('import-btn');
+    const importFile = document.getElementById('import-file');
+    const exportBtn = document.getElementById('export-btn');
+    const langToggle = document.getElementById('language-toggle');
+    const clearBtn = document.getElementById('clear-purchased');
+    const filterEl = document.getElementById('filter');
+
+    let items = [];
+    try { items = JSON.parse(localStorage.getItem('groceryItems')) || []; } catch(e) { items = []; }
+
+    let currentLang = localStorage.getItem('groceryLang') || (navigator.language && navigator.language.startsWith('mr') ? 'mr' : 'en');
+
+    function setUnitOptions() {
+      const select = document.getElementById('item-unit');
+      select.innerHTML = '';
+      units.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.key;
+        opt.textContent = currentLang === 'mr' ? u.mr : u.en;
+        select.appendChild(opt);
+      });
+    }
+
+    function applyLanguage() {
+      const t = translations[currentLang];
+      document.getElementById('app-title').innerText = t.title;
+      document.getElementById('add-btn').innerText = t.add;
+      clearBtn.innerText = t.clear;
+      filterEl.options[0].text = t.all;
+      filterEl.options[1].text = t.active;
+      filterEl.options[2].text = t.purchased;
+      setUnitOptions();
+      langToggle.value = currentLang;
+      renderList();
+    }
+
+    langToggle.addEventListener('change', e => { currentLang = e.target.value; localStorage.setItem('groceryLang', currentLang); applyLanguage(); });
+
+    function showSuggestions(value) {
+      const q = value.trim().toLowerCase();
+      suggestionsBox.innerHTML = '';
+      if (!q) { suggestionsBox.classList.add('hidden'); return; }
+      const matches = indianItems.filter(it => it.toLowerCase().startsWith(q)).slice(0, 10);
+      if (!matches.length) { suggestionsBox.classList.add('hidden'); return; }
+      matches.forEach(match => {
+        const div = document.createElement('div');
+        div.textContent = match;
+        div.tabIndex = 0;
+        div.addEventListener('click', () => { itemNameInput.value = match; suggestionsBox.classList.add('hidden'); itemNameInput.focus(); });
+        div.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); itemNameInput.value = match; suggestionsBox.classList.add('hidden'); itemNameInput.focus(); } });
+        suggestionsBox.appendChild(div);
+      });
+      suggestionsBox.classList.remove('hidden');
+    }
+
+    itemNameInput.addEventListener('input', e => showSuggestions(e.target.value));
+    document.addEventListener('click', e => { if (!e.target.closest('#suggestions') && !e.target.closest('#item-name')) suggestionsBox.classList.add('hidden'); });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = itemNameInput.value.trim();
+      const qty = Number(document.getElementById('item-qty').value);
+      const unitKey = document.getElementById('item-unit').value;
+      if (!name || !qty || qty <= 0) { Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: translations[currentLang].noItems, showConfirmButton: false, timer: 1400 }); return; }
+      const unitObj = units.find(u => u.key === unitKey) || units[0];
+      items.push({ name, qty, unit: unitObj.key, purchased: false });
+      localStorage.setItem('groceryItems', JSON.stringify(items));
+      renderList();
+      form.reset();
+      suggestionsBox.classList.add('hidden');
+      Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `${name} ${translations[currentLang].added}`, showConfirmButton: false, timer: 1200 });
+    });
+
+    function renderList() {
+      listEl.innerHTML = '';
+      const t = translations[currentLang];
+      if (!items.length) { const li = document.createElement('li'); li.className = 'text-center text-gray-500'; li.textContent = t.noItems; listEl.appendChild(li); return; }
+      const filter = filterEl.value;
+      items.forEach((item, index) => {
+        if (filter === 'active' && item.purchased) return;
+        if (filter === 'purchased' && !item.purchased) return;
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center border p-3 rounded-lg shadow bg-orange-100';
+        const left = document.createElement('div');
+        left.className = item.purchased ? 'line-through text-gray-400' : '';
+        const unitLabel = (units.find(u => u.key === item.unit) || units[0])[currentLang === 'mr' ? 'mr' : 'en'];
+        left.textContent = `${item.name} - ${item.qty} ${unitLabel}`;
+        const right = document.createElement('div');
+        right.className = 'flex gap-2';
+        const btnBuy = document.createElement('button'); btnBuy.type = 'button'; btnBuy.className = 'text-green-600'; btnBuy.textContent = '✔️'; btnBuy.addEventListener('click', () => { togglePurchased(index); });
+        const btnDel = document.createElement('button'); btnDel.type = 'button'; btnDel.className = 'text-red-600'; btnDel.textContent = '❌'; btnDel.addEventListener('click', () => { deleteItem(index); });
+        right.appendChild(btnBuy); right.appendChild(btnDel);
+        li.appendChild(left); li.appendChild(right);
+        listEl.appendChild(li);
+      });
+    }
+
+    function togglePurchased(index) { items[index].purchased = !items[index].purchased; localStorage.setItem('groceryItems', JSON.stringify(items)); renderList(); }
+
+    function deleteItem(index) { items.splice(index, 1); localStorage.setItem('groceryItems', JSON.stringify(items)); renderList(); Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: translations[currentLang].removed, showConfirmButton: false, timer: 1000 }); }
+
+    clearBtn.addEventListener('click', () => {
+      const before = items.length;
+      items = items.filter(item => !item.purchased);
+      if (items.length < before) { localStorage.setItem('groceryItems', JSON.stringify(items)); renderList(); Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: translations[currentLang].cleared, showConfirmButton: false, timer: 1100 }); } else { Swal.fire({ toast: true, position: 'top-end', icon: 'info', title: translations[currentLang].noItems, showConfirmButton: false, timer: 1000 }); }
+    });
+
+    exportBtn.addEventListener('click', () => { const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'grocery-list.json'; a.click(); URL.revokeObjectURL(url); });
+
+    importBtn.addEventListener('click', () => importFile.click());
+    importFile.addEventListener('change', e => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = ev => { try { const importedItems = JSON.parse(ev.target.result); if (Array.isArray(importedItems)) { items = importedItems.map(it => ({ name: String(it.name || ''), qty: Number(it.qty || 1), unit: String(it.unit || units[0].key), purchased: Boolean(it.purchased) })); localStorage.setItem('groceryItems', JSON.stringify(items)); renderList(); Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: translations[currentLang].imported, showConfirmButton: false, timer: 1200 }); } } catch (err) { Swal.fire({ toast: true, position: 'top-end', icon: 'error', title: 'Invalid file format', showConfirmButton: false, timer: 1200 }); } }; reader.readAsText(file); });
+
+    applyLanguage();
+
+
+    // date and time display
+
+function updateDateTime() {
+    const now = new Date();
+
+    // Format date and time
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+
+    const formatted = now.toLocaleString('en-IN', options);
+    document.getElementById('currentDateTime').textContent = `📅 ${formatted}`;
+}
+
+// Update immediately and then every second
+updateDateTime();
+setInterval(updateDateTime, 1000);
+  </script>
+</body>
+</html>

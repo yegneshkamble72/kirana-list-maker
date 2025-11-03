@@ -282,32 +282,36 @@ header{
         <h1 class="login-title">Smart Grocery List App</h1>
         <p>Start building your grocery list</p>
         
-        <button class="btn"  onclick="startApp()">📝 Get Started</button>
+        <button class="btn"  onclick="startApp()">📝 Get Started 1</button><br>
+        <button 
+         onclick="window.location.href='second.html'" 
+         class=" btn px-6 py-3 bg-green-500 text-white rounded-full hover:bg-green-600 transition-all duration-300">
+          📝 Get Started 2
+        </button>
+        
+        
+
     </div>
 </div>
 
 <!-- Main App -->
 <div id="mainApp">
-  <!-- <header>🛒 My Glossary List App
-            <div id="currentDateTime"style="margin-top: 15px; color: black; font-weight: 600; text-align: center; font-size: 16px;"></div>
-
-  </header> -->
-  <div class="form-section" style="width:100%;
-  max-width:600px;
-  background:rgba(255,255,255,0.15);
-  backdrop-filter:blur(10px);
-  border-radius:15px;
-  text-align:center;
-  color:white;
-  font-size:20px;
-  font-weight:500;
-  padding:20px;
-  margin-bottom:25px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.2);
-  animation:slideDown 1s ease-in-out;">
+    <div class="form-section" style="width:100%;
+      max-width:600px;
+      background:rgba(255,255,255,0.15);
+      backdrop-filter:blur(10px);
+      border-radius:15px;
+      text-align:center;
+      color:rgb(0, 0, 0);
+      font-size:20px;
+      font-weight:500;
+      padding:20px;
+      margin-bottom:25px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.2);
+      animation:slideDown 1s ease-in-out;">
    <div style="display: flex;">
         <div class="logo">🛒</div>
-        <h1>My Glossary List App</h1>
+        <h1 style="padding-left: 20px;">My Grocery List App</h1>
    </div>    
     
     <div id="currentDateTime"style="margin-top: 15px; color: black; font-weight: 600; text-align: center; font-size: 16px;"></div>
